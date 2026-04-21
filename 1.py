@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from sklearn.ensemble import RandomForestRegressor  # for decimal output
+from sklearn.ensemble import RandomForestRegressor
 
 # ------------------ PAGE CONFIG ------------------
 st.set_page_config(page_title="Wine Quality App", layout="centered")
@@ -12,7 +12,7 @@ st.write("Enter chemical properties to predict wine quality.")
 # ------------------ LOAD DATA ------------------
 df = pd.read_csv("wine.csv")
 
-# 🔥 REMOVE unwanted column if exists
+# 🔥 Remove unwanted column if present
 if "Id" in df.columns:
     df = df.drop("Id", axis=1)
 
@@ -25,22 +25,18 @@ model.fit(X, y)
 
 st.success("Model loaded successfully!")
 
-# ------------------ INPUT FUNCTION ------------------
-def get_input(label):
-    return float(st.text_input(label, "0"))
-
 # ------------------ INPUT FIELDS ------------------
-fixed_acidity = get_input("Fixed Acidity")
-volatile_acidity = get_input("Volatile Acidity")
-citric_acid = get_input("Citric Acid")
-residual_sugar = get_input("Residual Sugar")
-chlorides = get_input("Chlorides")
-free_sulfur_dioxide = get_input("Free Sulfur Dioxide")
-total_sulfur_dioxide = get_input("Total Sulfur Dioxide")
-density = get_input("Density")
-pH = get_input("pH")
-sulphates = get_input("Sulphates")
-alcohol = get_input("Alcohol")
+fixed_acidity = st.number_input("Fixed Acidity", value=0.0, step=0.01)
+volatile_acidity = st.number_input("Volatile Acidity", value=0.0, step=0.01)
+citric_acid = st.number_input("Citric Acid", value=0.0, step=0.01)
+residual_sugar = st.number_input("Residual Sugar", value=0.0, step=0.01)
+chlorides = st.number_input("Chlorides", value=0.0, step=0.001)
+free_sulfur_dioxide = st.number_input("Free Sulfur Dioxide", value=0.0, step=1.0)
+total_sulfur_dioxide = st.number_input("Total Sulfur Dioxide", value=0.0, step=1.0)
+density = st.number_input("Density", value=0.0, step=0.001)
+pH = st.number_input("pH", value=0.0, step=0.01)
+sulphates = st.number_input("Sulphates", value=0.0, step=0.01)
+alcohol = st.number_input("Alcohol", value=0.0, step=0.01)
 
 # ------------------ PREDICTION ------------------
 if st.button("🔍 Predict Quality"):
@@ -59,15 +55,15 @@ if st.button("🔍 Predict Quality"):
         alcohol
     ]]
 
-    # Ensure correct structure
+    # Ensure exact feature match
     input_data = pd.DataFrame(input_values, columns=X.columns)
 
     prediction = model.predict(input_data)[0]
 
-    # 🔥 FINAL OUTPUT (your requirement)
+    # 🔥 FINAL OUTPUT (decimal as you wanted)
     st.success(f"🍷 Wine Quality: {round(prediction, 2)}")
 
-    # Optional label
+    # ------------------ INTERPRETATION ------------------
     if prediction >= 7:
         st.success("✨ Good Quality Wine")
     elif prediction >= 5:
