@@ -37,28 +37,31 @@ alcohol = st.number_input("Alcohol", 0.0)
 # ------------------ PREDICTION ------------------
 if st.button("🔍 Predict Quality"):
 
-    # IMPORTANT: Use DataFrame with exact column names
-    input_data = pd.DataFrame([{
-        "fixed acidity": fixed_acidity,
-        "volatile acidity": volatile_acidity,
-        "citric acid": citric_acid,
-        "residual sugar": residual_sugar,
-        "chlorides": chlorides,
-        "free sulfur dioxide": free_sulfur_dioxide,
-        "total sulfur dioxide": total_sulfur_dioxide,
-        "density": density,
-        "pH": pH,
-        "sulphates": sulphates,
-        "alcohol": alcohol
-    }])
+    # Create input in SAME ORDER as training data
+    input_values = [[
+        fixed_acidity,
+        volatile_acidity,
+        citric_acid,
+        residual_sugar,
+        chlorides,
+        free_sulfur_dioxide,
+        total_sulfur_dioxide,
+        density,
+        pH,
+        sulphates,
+        alcohol
+    ]]
+
+    # 🔥 CRITICAL FIX: use training columns
+    input_data = pd.DataFrame(input_values, columns=X.columns)
 
     # Prediction
     prediction = model.predict(input_data)[0]
 
-    # Output
+    # Display result
     st.success(f"🍷 Predicted Wine Quality: {prediction}")
 
-    # Optional: Better interpretation
+    # Interpretation
     if prediction >= 7:
         st.success("✨ Good Quality Wine")
     elif prediction >= 5:
