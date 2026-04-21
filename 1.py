@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestRegressor  # for decimal output
 
 # ------------------ PAGE CONFIG ------------------
 st.set_page_config(page_title="Wine Quality App", layout="centered")
@@ -12,28 +12,35 @@ st.write("Enter chemical properties to predict wine quality.")
 # ------------------ LOAD DATA ------------------
 df = pd.read_csv("wine.csv")
 
-# 🔥 FIX: remove Id column
-X = df.drop(['quality', 'Id'], axis=1)
-y = df['quality']
+# 🔥 REMOVE unwanted column if exists
+if "Id" in df.columns:
+    df = df.drop("Id", axis=1)
 
 # ------------------ TRAIN MODEL ------------------
-model = RandomForestClassifier(random_state=42)
+X = df.drop("quality", axis=1)
+y = df["quality"]
+
+model = RandomForestRegressor(random_state=42)
 model.fit(X, y)
 
 st.success("Model loaded successfully!")
 
+# ------------------ INPUT FUNCTION ------------------
+def get_input(label):
+    return float(st.text_input(label, "0"))
+
 # ------------------ INPUT FIELDS ------------------
-fixed_acidity = st.number_input("Fixed Acidity", 4.0, 16.0, 7.0)
-volatile_acidity = st.number_input("Volatile Acidity", 0.1, 1.5, 0.5)
-citric_acid = st.number_input("Citric Acid", 0.0, 1.0, 0.3)
-residual_sugar = st.number_input("Residual Sugar", 0.5, 15.0, 2.0)
-chlorides = st.number_input("Chlorides", 0.01, 0.2, 0.05)
-free_sulfur_dioxide = st.number_input("Free Sulfur Dioxide", 1.0, 80.0, 15.0)
-total_sulfur_dioxide = st.number_input("Total Sulfur Dioxide", 5.0, 300.0, 50.0)
-density = st.number_input("Density", 0.990, 1.005, 0.996)
-pH = st.number_input("pH", 2.5, 4.5, 3.2)
-sulphates = st.number_input("Sulphates", 0.3, 2.0, 0.6)
-alcohol = st.number_input("Alcohol", 8.0, 15.0, 10.0)
+fixed_acidity = get_input("Fixed Acidity")
+volatile_acidity = get_input("Volatile Acidity")
+citric_acid = get_input("Citric Acid")
+residual_sugar = get_input("Residual Sugar")
+chlorides = get_input("Chlorides")
+free_sulfur_dioxide = get_input("Free Sulfur Dioxide")
+total_sulfur_dioxide = get_input("Total Sulfur Dioxide")
+density = get_input("Density")
+pH = get_input("pH")
+sulphates = get_input("Sulphates")
+alcohol = get_input("Alcohol")
 
 # ------------------ PREDICTION ------------------
 if st.button("🔍 Predict Quality"):
@@ -52,13 +59,15 @@ if st.button("🔍 Predict Quality"):
         alcohol
     ]]
 
-    # Match training columns
+    # Ensure correct structure
     input_data = pd.DataFrame(input_values, columns=X.columns)
 
-    prediction = int(model.predict(input_data)[0])
+    prediction = model.predict(input_data)[0]
 
-    st.success(f"🍷 Predicted Wine Quality: {prediction}")
+    # 🔥 FINAL OUTPUT (your requirement)
+    st.success(f"🍷 Wine Quality: {round(prediction, 2)}")
 
+    # Optional label
     if prediction >= 7:
         st.success("✨ Good Quality Wine")
     elif prediction >= 5:
