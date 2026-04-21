@@ -1,7 +1,13 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
 from sklearn.ensemble import RandomForestClassifier
+
+# ------------------ PAGE CONFIG ------------------
+st.set_page_config(page_title="Wine Quality App", layout="centered")
+
+# ------------------ TITLE ------------------
+st.title("🍷 Wine Quality Prediction App")
+st.write("Enter chemical properties to predict wine quality.")
 
 # ------------------ LOAD DATA ------------------
 df = pd.read_csv("wine.csv")
@@ -12,12 +18,6 @@ y = df['quality']
 
 model = RandomForestClassifier(random_state=42)
 model.fit(X, y)
-
-# ------------------ UI ------------------
-st.set_page_config(page_title="Wine Quality App", layout="centered")
-
-st.title("🍷 Wine Quality Prediction App")
-st.write("Enter chemical properties to predict wine quality.")
 
 st.success("Model loaded successfully!")
 
@@ -36,11 +36,32 @@ alcohol = st.number_input("Alcohol", 0.0)
 
 # ------------------ PREDICTION ------------------
 if st.button("🔍 Predict Quality"):
-    
-    input_data = np.array([[fixed_acidity, volatile_acidity, citric_acid,
-                            residual_sugar, chlorides, free_sulfur_dioxide,
-                            total_sulfur_dioxide, density, pH, sulphates, alcohol]])
-    
+
+    # IMPORTANT: Use DataFrame with exact column names
+    input_data = pd.DataFrame([{
+        "fixed acidity": fixed_acidity,
+        "volatile acidity": volatile_acidity,
+        "citric acid": citric_acid,
+        "residual sugar": residual_sugar,
+        "chlorides": chlorides,
+        "free sulfur dioxide": free_sulfur_dioxide,
+        "total sulfur dioxide": total_sulfur_dioxide,
+        "density": density,
+        "pH": pH,
+        "sulphates": sulphates,
+        "alcohol": alcohol
+    }])
+
+    # Prediction
     prediction = model.predict(input_data)[0]
-    
+
+    # Output
     st.success(f"🍷 Predicted Wine Quality: {prediction}")
+
+    # Optional: Better interpretation
+    if prediction >= 7:
+        st.success("✨ Good Quality Wine")
+    elif prediction >= 5:
+        st.warning("🙂 Average Quality Wine")
+    else:
+        st.error("⚠️ Poor Quality Wine")
