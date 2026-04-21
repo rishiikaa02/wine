@@ -12,36 +12,33 @@ st.write("Enter chemical properties to predict wine quality.")
 # ------------------ LOAD DATA ------------------
 df = pd.read_csv("wine.csv")
 
-# ------------------ TRAIN MODEL ------------------
-X = df.drop('quality', axis=1)
+# 🔥 FIX: remove Id column
+X = df.drop(['quality', 'Id'], axis=1)
 y = df['quality']
 
+# ------------------ TRAIN MODEL ------------------
 model = RandomForestClassifier(random_state=42)
 model.fit(X, y)
 
 st.success("Model loaded successfully!")
 
-# ------------------ SHOW COLUMNS (for debugging once) ------------------
-# st.write("Columns:", X.columns)
-
 # ------------------ INPUT FIELDS ------------------
-fixed_acidity = st.number_input("Fixed Acidity", 0.0)
-volatile_acidity = st.number_input("Volatile Acidity", 0.0)
-citric_acid = st.number_input("Citric Acid", 0.0)
-residual_sugar = st.number_input("Residual Sugar", 0.0)
-chlorides = st.number_input("Chlorides", 0.0)
-free_sulfur_dioxide = st.number_input("Free Sulfur Dioxide", 0.0)
-total_sulfur_dioxide = st.number_input("Total Sulfur Dioxide", 0.0)
-density = st.number_input("Density", 0.0)
-pH = st.number_input("pH", 0.0)
-sulphates = st.number_input("Sulphates", 0.0)
-alcohol = st.number_input("Alcohol", 0.0)
+fixed_acidity = st.number_input("Fixed Acidity", 4.0, 16.0, 7.0)
+volatile_acidity = st.number_input("Volatile Acidity", 0.1, 1.5, 0.5)
+citric_acid = st.number_input("Citric Acid", 0.0, 1.0, 0.3)
+residual_sugar = st.number_input("Residual Sugar", 0.5, 15.0, 2.0)
+chlorides = st.number_input("Chlorides", 0.01, 0.2, 0.05)
+free_sulfur_dioxide = st.number_input("Free Sulfur Dioxide", 1.0, 80.0, 15.0)
+total_sulfur_dioxide = st.number_input("Total Sulfur Dioxide", 5.0, 300.0, 50.0)
+density = st.number_input("Density", 0.990, 1.005, 0.996)
+pH = st.number_input("pH", 2.5, 4.5, 3.2)
+sulphates = st.number_input("Sulphates", 0.3, 2.0, 0.6)
+alcohol = st.number_input("Alcohol", 8.0, 15.0, 10.0)
 
 # ------------------ PREDICTION ------------------
 if st.button("🔍 Predict Quality"):
 
-    # Create list of inputs
-    input_values = [
+    input_values = [[
         fixed_acidity,
         volatile_acidity,
         citric_acid,
@@ -53,24 +50,15 @@ if st.button("🔍 Predict Quality"):
         pH,
         sulphates,
         alcohol
-    ]
+    ]]
 
-    # 🔥 KEY FIX: Use X.columns to ensure exact match
-    try:
-        input_data = pd.DataFrame([input_values], columns=X.columns)
-    except Exception as e:
-        st.error("❌ Feature mismatch! Check dataset columns.")
-        st.write("Expected:", list(X.columns))
-        st.write("Given:", len(input_values))
-        st.stop()
+    # Match training columns
+    input_data = pd.DataFrame(input_values, columns=X.columns)
 
-    # Prediction
-    prediction = model.predict(input_data)[0]
+    prediction = int(model.predict(input_data)[0])
 
-    # Output
     st.success(f"🍷 Predicted Wine Quality: {prediction}")
 
-    # Interpretation
     if prediction >= 7:
         st.success("✨ Good Quality Wine")
     elif prediction >= 5:
