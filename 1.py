@@ -21,6 +21,9 @@ model.fit(X, y)
 
 st.success("Model loaded successfully!")
 
+# ------------------ SHOW COLUMNS (for debugging once) ------------------
+# st.write("Columns:", X.columns)
+
 # ------------------ INPUT FIELDS ------------------
 fixed_acidity = st.number_input("Fixed Acidity", 0.0)
 volatile_acidity = st.number_input("Volatile Acidity", 0.0)
@@ -37,8 +40,8 @@ alcohol = st.number_input("Alcohol", 0.0)
 # ------------------ PREDICTION ------------------
 if st.button("🔍 Predict Quality"):
 
-    # Create input in SAME ORDER as training data
-    input_values = [[
+    # Create list of inputs
+    input_values = [
         fixed_acidity,
         volatile_acidity,
         citric_acid,
@@ -50,15 +53,21 @@ if st.button("🔍 Predict Quality"):
         pH,
         sulphates,
         alcohol
-    ]]
+    ]
 
-    # 🔥 CRITICAL FIX: use training columns
-    input_data = pd.DataFrame(input_values, columns=X.columns)
+    # 🔥 KEY FIX: Use X.columns to ensure exact match
+    try:
+        input_data = pd.DataFrame([input_values], columns=X.columns)
+    except Exception as e:
+        st.error("❌ Feature mismatch! Check dataset columns.")
+        st.write("Expected:", list(X.columns))
+        st.write("Given:", len(input_values))
+        st.stop()
 
     # Prediction
     prediction = model.predict(input_data)[0]
 
-    # Display result
+    # Output
     st.success(f"🍷 Predicted Wine Quality: {prediction}")
 
     # Interpretation
